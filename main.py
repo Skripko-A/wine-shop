@@ -43,21 +43,26 @@ def make_winery_age_ending(winery_age) -> str:
     return winery_age_ending
 
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
+def main():
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
 
-template = env.get_template('template.html')
+    template = env.get_template('template.html')
 
-rendered_page = template.render(
-    winery_age_text=f'Уже {calc_winery_age()} {make_winery_age_ending(calc_winery_age())} с вами',
-    categorized_wines=make_stock_for_render(),
-    categories=make_stock_for_render().keys()
-)
+    rendered_page = template.render(
+        winery_age_text=f'Уже {calc_winery_age()} {make_winery_age_ending(calc_winery_age())} с вами',
+        categorized_wines=make_stock_for_render(),
+        categories=make_stock_for_render().keys()
+    )
 
-with open('index.html', 'w', encoding="utf8") as file:
-    file.write(rendered_page)
+    with open('index.html', 'w', encoding="utf8") as file:
+        file.write(rendered_page)
 
-server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-server.serve_forever()
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+
+if __name__ == '__main__':
+    main()
