@@ -1,26 +1,25 @@
 import collections
+import pathlib
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas as pd
+import argparse
 
 
-def get_wines_from_xlsx() -> dict:
-    stock_table = pd.read_excel(io='wine3.xlsx', na_values='na', keep_default_na=False)
-    columns_titles = stock_table.columns.ravel().tolist()
-    columns_values = [stock_table[title].tolist() for title in columns_titles]
-    categories, names, sorts, prices, pics, discounts = [value for value in columns_values]
-    pics = [f'images/{pic}' for pic in pics]
-    stock_params = [[category, name, sort, price, pic, discount]
-                    for category, name, sort, price, pic, discount
-                    in zip(categories, names, sorts, prices, pics, discounts)]
-    stock = []
-    for params in stock_params:
-        wine = {title: param for title, param in zip(columns_titles, params)}
-        stock.append(wine)
+def parse_wine_xlsx_file():
+    parser = argparse.ArgumentParser(description='Запуск сайта элитное вино')
+    parser.add_argument('--wine_data', help='Укажите полное имя файла xlsx с данными о винных продуктах')
+    return parser.parse_args().wine_data
+
+
+def make_stock_for_render() -> dict:
+    stock_table = pd.read_excel(io=parse_wine_xlsx_file(), na_values='na', keep_default_na=False)
     stock_for_render = collections.defaultdict(list)
-    for category, wine in zip(categories, stock):
-        stock_for_render[category].append(wine)
+    for wine in stock_table.to_dict("records"):
+        stock_for_render[wine['Категория']].append(wine)
+        wine['Картинка'] = pathlib.Path() / 'images' / wine['Картинка']
     return stock_for_render
 
 
@@ -53,8 +52,8 @@ template = env.get_template('template.html')
 
 rendered_page = template.render(
     winery_age_text=f'Уже {calc_winery_age()} {make_winery_age_ending(calc_winery_age())} с вами',
-    categorized_wines=get_wines_from_xlsx(),
-    categories=get_wines_from_xlsx().keys()
+    categorized_wines=make_stock_for_render(),
+    categories=make_stock_for_render().keys()
 )
 
 with open('index.html', 'w', encoding="utf8") as file:
