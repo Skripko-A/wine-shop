@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 ```commandline
 python3 main.py --wine_data your/wine/data.xlsx
 ```
-Вместо your/wine/data.xlsx должно быть указано полное имя файла .xlsx с данными о ваших винных продуктах
+Вместо your/wine/data.xlsx должно быть указано полное имя файла .xlsx с данными о ваших винных продуктах.
 Перейдите по ссылке http://localhost:8000
 
 
